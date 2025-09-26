@@ -2,7 +2,7 @@
 
 polygon:
   # Get your free API key from: https://polygon.io/dashboard/api-keys
-  api_key: "_RYBnEtKxKg8MhRRRg9d0mqHKvB0LjJZ"
+  api_key: "ptjs8fgo8OP67szn6kjeIdPL5JtAQMq2"
   
   # Rate limiting for free tier (5 requests per minute)
   rate_limit:
@@ -38,7 +38,8 @@ polygon:
       - BAC    # 52% return
       - UNH    # 51% return
       - SPY    # 3.7% return (benchmark)
-      - MNQ-F  # 24% return (futures)
+      - MNQ=F  # 24% return (futures)
+      - NQ=F   # 23% return (futures)
     
     forex:
       - "C:EURUSD"   # EUR/USD
