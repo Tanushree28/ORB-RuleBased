@@ -90,6 +90,16 @@ python main.py --report
 python systematic_backtest.py
 ```
 
+### 6. Run the comprehensive systematic backtest 
+```bash
+python comprehensive_systematic_backtest.py
+```
+
+### 7. Run the for insights from the systematic backtest
+```bash
+python visualize_systematic_backtest.py
+```
+
 ## Project Structure
 
 ```

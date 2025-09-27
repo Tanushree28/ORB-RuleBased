@@ -2,6 +2,12 @@
 
 from __future__ import annotations
 
+import pandas as pd
+import yaml
+from datetime import datetime
+from itertools import product
+from typing import Dict, Iterable, List, Optional
+
 from pathlib import Path
 import sys
 
@@ -13,20 +19,14 @@ REPO_ROOT = BASE_DIR if (BASE_DIR / "configs").exists() else BASE_DIR.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-# Now imports that depend on repo packages
-from strategy.orb_strategy import ORBStrategy
-
-import pandas as pd
-import yaml
-from datetime import datetime
-from itertools import product
-from typing import Dict, Iterable, List, Optional
-
 CONFIG_PATH = REPO_ROOT / "configs" / "polygon_config.yaml"
 MAIN_CFG_PATH = REPO_ROOT / "configs" / "config.yaml"
 DATA_DIR = REPO_ROOT / "data" / "polygon"
 REPORTS_DIR = REPO_ROOT / "reports" / "polygon"
 REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+
+# Now imports that depend on repo packages
+from strategy.orb_strategy import ORBStrategy
 
 
 TP_MULTIPLIERS: Iterable[float] = [2.0, 1.0, 0.5]

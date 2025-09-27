@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Run systematic ORB backtests across parameter combinations."""
 
+from backtesting.backtest import BacktestEngine
+
 from datetime import datetime
 from itertools import product
 from pathlib import Path
@@ -8,13 +10,11 @@ from typing import Dict, Iterable, List
 
 import pandas as pd
 
-from backtesting.backtest import BacktestEngine
 
 # Parameter grid reflecting the requested tuning sweep:
 #   - Opening range windows: first 5 minutes and full 15 minutes
 #   - Risk levels: 1% and 2% of capital per trade
 #   - TP:SL ratios: 2:1, 1:1, and 0.5:1 for comparison
-
 TP_MULTIPLIERS: Iterable[float] = [2.0, 1.0, 0.5]
 RISK_LEVELS: Iterable[float] = [0.01, 0.02]
 ORB_DURATIONS: Iterable[int] = [5, 15]
@@ -117,10 +117,7 @@ def run_backtests() -> pd.DataFrame:
 
 
 def summarise_results(results_df: pd.DataFrame) -> None:
-    """Generate summary CSVs to highlight robust parameter sets."""
-
-    if results_df.empty:
-        return
+    """Summarise and highlight robust parameter sets including ex-futures analysis."""
 
     combo_summary = (
         results_df.groupby(
@@ -139,112 +136,24 @@ def summarise_results(results_df: pd.DataFrame) -> None:
         "total_symbols"
     ].replace(0, pd.NA)
 
-    combo_path = _safe_to_csv(
-        combo_summary,
-        "reports/systematic_backtest_combo_summary.csv",
-        "combination summary",
-    )
-
-    symbol_combo_summary = (
-        results_df.groupby(
-            ["symbol", "interval", "orb_duration", "tp_multiplier", "risk_per_trade"]
-        )
-        .agg(
-            avg_return=("return_pct", "mean"),
-            median_return=("return_pct", "median"),
-            avg_profit_factor=("profit_factor", "mean"),
-            total_trades=("total_trades", "sum"),
-        )
-        .reset_index()
-    )
-
-    symbol_combo_path = _safe_to_csv(
-        symbol_combo_summary,
-        "reports/systematic_backtest_symbol_combo_summary.csv",
-        "symbol combination summary",
-    )
-
-    symbol_summary = (
-        results_df.groupby(["symbol", "name", "category"])
-        .agg(
-            avg_return=("return_pct", "mean"),
-            median_return=("return_pct", "median"),
-            best_return=("return_pct", "max"),
-            worst_return=("return_pct", "min"),
-            avg_profit_factor=("profit_factor", "mean"),
-            total_trades=("total_trades", "sum"),
-        )
-        .reset_index()
-    )
-
-    symbol_positive_ratio = (
-        results_df.assign(is_positive=results_df["return_pct"] > 0)
-        .groupby(["symbol", "name", "category"])["is_positive"]
-        .mean()
-        .reset_index(name="positive_ratio")
-    )
-    symbol_summary = symbol_summary.merge(
-        symbol_positive_ratio, on=["symbol", "name", "category"], how="left"
-    )
-
-    symbol_path = _safe_to_csv(
-        symbol_summary,
-        "reports/systematic_backtest_symbol_summary.csv",
-        "per-symbol aggregate performance",
-    )
-
-    print(f"Saved per-symbol summary to {symbol_path}")
-
-    top_by_symbol = (
-        results_df.sort_values(["symbol", "return_pct"], ascending=[True, False])
-        .groupby(["symbol", "interval"])
-        .head(3)
-    )
-    top_path = _safe_to_csv(
-        top_by_symbol,
-        "reports/systematic_backtest_top3_by_symbol.csv",
-        "per-symbol top combinations",
-    )
-
-    print(f"Saved top combinations by symbol to {top_path}")
-
-    robust_combos = combo_summary[
-        (combo_summary["avg_return"] > 0)
-        & (combo_summary["avg_profit_factor"] > 1)
-        & (combo_summary["positive_ratio"].fillna(0) >= 0.6)
-    ].copy()
-    robust_path = _safe_to_csv(
-        robust_combos,
-        "reports/systematic_backtest_robust_combos.csv",
-        "robust combination summary",
-    )
-
-    if not robust_combos.empty:
-        print(f"Saved robust combination summary to {robust_path}")
-
-    print("\nTop parameter combinations by average return:")
+    print("\nCombination summary:")
     print(
-        combo_summary.sort_values("avg_return", ascending=False)
-        .head(10)
-        .to_string(index=False, formatters={"avg_return": "{:.2f}".format})
-    )
-
-    print("\nSymbols with highest average returns across all scenarios:")
-    print(
-        symbol_summary.sort_values("avg_return", ascending=False)
-        .head(10)
-        .to_string(
+        combo_summary.to_string(
             index=False,
             formatters={
                 "avg_return": "{:.2f}".format,
                 "median_return": "{:.2f}".format,
-                "best_return": "{:.2f}".format,
-                "worst_return": "{:.2f}".format,
                 "avg_profit_factor": "{:.2f}".format,
                 "positive_ratio": "{:.2f}".format,
             },
         )
     )
+
+    robust_combos = combo_summary[
+        (combo_summary["avg_return"] > 0)
+        & (combo_summary["avg_profit_factor"] > 1)
+        & (combo_summary["positive_ratio"].fillna(0) >= 0.6)
+    ]
 
     if not robust_combos.empty:
         print("\nRobust parameter sets (avg_return>0, PF>1, >=60% symbols profitable):")
@@ -264,10 +173,116 @@ def summarise_results(results_df: pd.DataFrame) -> None:
             "\nNo parameter sets met the robustness filter (avg_return>0, PF>1, >=60% positive symbols)."
         )
 
+    # Highlight robustness beyond the Nasdaq futures contracts (MNQ/NQ)
+    non_futures_df = results_df[results_df["category"] != "futures"].copy()
+
+    if non_futures_df.empty:
+        print(
+            "\nNo non-futures symbols were available to validate robustness beyond MNQ/NQ."
+        )
+        return
+
+    nf_combo_summary = (
+        non_futures_df.groupby(
+            ["interval", "orb_duration", "tp_multiplier", "risk_per_trade"]
+        )
+        .agg(
+            avg_return=("return_pct", "mean"),
+            median_return=("return_pct", "median"),
+            avg_profit_factor=("profit_factor", "mean"),
+            positive_symbols=("return_pct", lambda x: (x > 0).sum()),
+            total_symbols=("symbol", "nunique"),
+        )
+        .reset_index()
+    )
+    nf_combo_summary["positive_ratio"] = nf_combo_summary[
+        "positive_symbols"
+    ] / nf_combo_summary["total_symbols"].replace(0, pd.NA)
+
+    nf_combo_path = _safe_to_csv(
+        nf_combo_summary,
+        "reports/systematic_backtest_combo_summary_ex_futures.csv",
+        "combination summary (excluding futures)",
+    )
+
+    nf_symbol_summary = (
+        non_futures_df.groupby(["symbol", "name", "category"])
+        .agg(
+            avg_return=("return_pct", "mean"),
+            median_return=("return_pct", "median"),
+            best_return=("return_pct", "max"),
+            worst_return=("return_pct", "min"),
+            avg_profit_factor=("profit_factor", "mean"),
+            total_trades=("total_trades", "sum"),
+        )
+        .reset_index()
+    )
+
+    nf_symbol_positive_ratio = (
+        non_futures_df.assign(is_positive=non_futures_df["return_pct"] > 0)
+        .groupby(["symbol", "name", "category"])["is_positive"]
+        .mean()
+        .reset_index(name="positive_ratio")
+    )
+    nf_symbol_summary = nf_symbol_summary.merge(
+        nf_symbol_positive_ratio, on=["symbol", "name", "category"], how="left"
+    )
+
+    nf_symbol_path = _safe_to_csv(
+        nf_symbol_summary,
+        "reports/systematic_backtest_symbol_summary_ex_futures.csv",
+        "per-symbol performance excluding futures",
+    )
+
+    nf_robust = nf_combo_summary[
+        (nf_combo_summary["avg_return"] > 0)
+        & (nf_combo_summary["avg_profit_factor"] > 1)
+        & (nf_combo_summary["positive_ratio"].fillna(0) >= 0.6)
+    ].copy()
+
+    nf_robust_path = _safe_to_csv(
+        nf_robust,
+        "reports/systematic_backtest_robust_combos_ex_futures.csv",
+        "robust combination summary excluding futures",
+    )
+
+    print(f"Saved non-futures combination summary to {nf_combo_path}")
+    print(f"Saved non-futures symbol summary to {nf_symbol_path}")
+    if not nf_robust.empty:
+        print(f"Saved non-futures robust combination summary to {nf_robust_path}")
+
+    print("\nTop non-futures parameter combinations by average return:")
+    print(
+        nf_combo_summary.sort_values("avg_return", ascending=False)
+        .head(10)
+        .to_string(index=False, formatters={"avg_return": "{:.2f}".format})
+    )
+
+    print("\nNon-futures symbols with highest average returns:")
+    print(
+        nf_symbol_summary.sort_values("avg_return", ascending=False)
+        .head(10)
+        .to_string(
+            index=False,
+            formatters={
+                "avg_return": "{:.2f}".format,
+                "median_return": "{:.2f}".format,
+                "best_return": "{:.2f}".format,
+                "worst_return": "{:.2f}".format,
+                "avg_profit_factor": "{:.2f}".format,
+                "positive_ratio": "{:.2f}".format,
+            },
+        )
+    )
+
+    if nf_robust.empty:
+        print(
+            "\nNo non-futures parameter sets met the robustness filter (avg_return>0, PF>1, >=60% positive symbols)."
+        )
+
 
 def main() -> None:
     """Entry point."""
-
     results_df = run_backtests()
     summarise_results(results_df)
 
