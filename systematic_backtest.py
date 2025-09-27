@@ -10,6 +10,10 @@ import pandas as pd
 
 from backtesting.backtest import BacktestEngine
 
+# Parameter grid reflecting the requested tuning sweep:
+#   - Opening range windows: first 5 minutes and full 15 minutes
+#   - Risk levels: 1% and 2% of capital per trade
+#   - TP:SL ratios: 2:1, 1:1, and 0.5:1 for comparison
 
 TP_MULTIPLIERS: Iterable[float] = [2.0, 1.0, 0.5]
 RISK_LEVELS: Iterable[float] = [0.01, 0.02]
