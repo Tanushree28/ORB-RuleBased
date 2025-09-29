@@ -1,52 +1,66 @@
 # ORB Strategy Configuration
 
 strategy:
-  # Opening Range Configuration
+  # Opening Range Configuration (US/Eastern)
   opening_range:
-    start_time: "09:30"  # EST
-    end_time: "09:45"    # EST
-    duration_minutes: 15  # Can be adjusted
-  
+    start_time: "09:30"        # ET
+    end_time: "09:45"          # ET
+    duration_minutes: 15
+
   # Risk Management
   risk_management:
-    risk_per_trade: 0.01  # 1% risk per trade
-    initial_capital: 10000  # Starting capital
-    
+    risk_per_trade: 0.01       # 1% risk per trade
+    initial_capital: 10000
+
   # Trade Parameters
   trade_parameters:
-    tp_multiplier: 2.0  # Take profit multiplier (adjustable)
-    sl_buffer: 0.0001  # Small buffer for stop loss placement
-    max_trades_per_day: 2  # Maximum trades per symbol per day
-    max_long_trades_per_day: 1  # Limit to one long trade per day
-    max_short_trades_per_day: 1  # Limit to one short trade per day
-    
+    tp_multiplier: 2.0         # default take-profit multiplier (may be overridden by sweep)
+    sl_buffer: 0.0001          # small buffer for stop loss placement
+    max_trades_per_day: 2      # max per symbol per day
+    max_long_trades_per_day: 1
+    max_short_trades_per_day: 1
+
   # Position Sizing
   position_sizing:
-    method: "fixed_risk"  # Options: fixed_risk, fixed_units
-    
+    method: "fixed_risk"       # options: fixed_risk, fixed_units
+
+# Daily ORB reporting / forward test controls
+# Consumed by your daily analyzer script
+daily_orb:
+  parameter_sweep:
+    opening_windows:
+      - "15m"
+    risk_percents:
+      - 0.01                   # 1%
+      - 0.02                   # 2%
+    tp_multipliers:
+      - 2.0
+      - 1.0
+      - 0.5
+
 # Symbols to Trade
 symbols:
   futures:
-    - symbol: "MNQ=F"  # Micro E-mini Nasdaq
+    - symbol: "MNQ=F"          # Micro E-mini Nasdaq
       name: "Micro Nasdaq"
       multiplier: 2
-    - symbol: "NQ=F"   # E-mini Nasdaq
+    - symbol: "NQ=F"           # E-mini Nasdaq
       name: "Nasdaq Futures"
       multiplier: 20
-      
+
   forex:
     - symbol: "EURUSD=X"
       name: "EUR/USD"
       pip_value: 0.0001
-      
+
   commodities:
-    - symbol: "GC=F"  # Gold Futures
+    - symbol: "GC=F"           # Gold Futures
       name: "Gold"
       multiplier: 100
-    - symbol: "GLD"   # Gold ETF (alternative)
+    - symbol: "GLD"            # Gold ETF (alternative)
       name: "Gold ETF"
       multiplier: 1
-      
+
   stocks:
     - symbol: "AAPL"
       name: "Apple"
@@ -64,18 +78,20 @@ symbols:
       name: "Nasdaq ETF"
 
 # Data Configuration
+# If start_date or end_date are null/blank, the downloader will
+# use a rolling lookback defined by lookback_days.
 data:
   intervals:
-    - "5m"
-    - "15m"
-  start_date: "2025-07-30"
-  end_date: "2025-09-26"
-  
+    - "5m"                     # 5m bars are used to build the 15m OR
+  start_date: "2025-09-29"
+  end_date: null               # include the most recent session(s)
+  lookback_days: 60            # used when start_date is omitted
+
 # Backtesting Configuration
 backtesting:
-  commission: 0.0005  # 0.05% per trade
-  slippage: 0.0001    # 0.01% slippage
-  
+  commission: 0.0005           # 0.05% per trade
+  slippage: 0.0001             # 0.01% slippage
+
 # Reporting
 reporting:
   generate_html: true

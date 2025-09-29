@@ -145,6 +145,18 @@ The system is configured to trade:
 ### Data Settings
 - **Intervals**: 5m and 15m
 - **Date Range**: 2023-01-01 to 2024-12-31
+- **Date Range**: Configure in `configs/config.yaml`. Leave `end_date` blank (`null`) to always fetch through the latest completed session; omit `start_date` to use the rolling `lookback_days` window (defaults to 60 days).
+
+### Daily Yahoo ORB Report & Forward Test Support
+After refreshing data we can generate a daily parameter sweep tailored for Yahoo Finance CSVs:
+
+```bash
+python data_downloader.py      # refresh cached bars using the current config range
+python generate_daily_orb_yf.py
+```
+
+The analyzer reads the symbols from `config.yaml`, sweeps the opening-range/risk/TP grid defined under `daily_orb.parameter_sweep`, and writes date-stamped outputs to `reports/daily_orb_yf/<MMDDYYYY>/` including per-symbol trade logs, a combined CSV, and a parameter summary with visualization. Key winners are also printed to the console for a quick at-a-glance view.
+
 
 ## Output Reports
 
