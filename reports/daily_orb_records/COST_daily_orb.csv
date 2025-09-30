@@ -1,0 +1,5 @@
+date,orb_high,orb_low,orb_range,long_entry,long_sl,long_tp,short_entry,short_sl,short_tp,long_triggered,short_triggered,long_result,short_result,day_high,day_low
+2024-08-05,804.72,801.53,3.19,804.72,801.53,811.1,801.53,804.72,795.15,True,True,SL,SL,812.03,793.0
+2025-04-03,932.84,932.48,0.36,932.84,932.48,933.56,932.48,932.84,931.76,True,True,TP,TP,976.39,927.0
+2025-05-01,997.0,996.3,0.7,997.0,996.3,998.4,996.3,997.0,994.9,True,True,SL,TP,1003.46,985.0
+2025-05-12,1025.0,1024.84,0.16,1025.0,1024.84,1025.32,1024.84,1025.0,1024.52,False,False,No Trade,No Trade,1026.33,992.24
