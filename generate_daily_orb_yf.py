@@ -579,9 +579,18 @@ def _plot_top_symbol_detail(all_df: pd.DataFrame, report_dir: Path) -> None:
     plt.close(fig)
 
 
+from pathlib import Path
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
+
+
 def build_comprehensive_report(all_df: pd.DataFrame, report_dir: Path) -> None:
     """Create a multi-panel overview (today-only) + a top-symbol detail chart."""
+    # Work only with rows that actually triggered trades
     triggered = all_df[all_df["triggered"]].copy()
+
+    # Pre-computed summaries
     combo_summary = _build_combo_summary(triggered)
     symbol_summary = _build_symbol_summary(triggered)
 
@@ -595,26 +604,97 @@ def build_comprehensive_report(all_df: pd.DataFrame, report_dir: Path) -> None:
         ax1.axis("off")
         ax1.text(0.5, 0.5, "No combo data", ha="center", va="center")
     else:
-        ax1.barh(range(len(topc)), topc["net_pnl"])
+        # Determine highlighted bar (highest net PnL among the displayed)
+        best_combo_row = topc.sort_values("net_pnl", ascending=False).iloc[0]
+        best_combo_label = best_combo_row["label"]
+
+        # Colors: highlight the best combo
+        combo_colors = [
+            "darkorange" if label == best_combo_label else "steelblue"
+            for label in topc["label"]
+        ]
+        bars = ax1.barh(
+            range(len(topc)), topc["net_pnl"], color=combo_colors, alpha=0.85
+        )
         ax1.set_yticks(range(len(topc)))
         ax1.set_yticklabels(topc["label"], fontsize=9)
         ax1.invert_yaxis()
         ax1.set_title("Top Parameter Combos (Net PnL)")
         ax1.set_xlabel("Net PnL")
 
-    # 2) Avg return by symbol
+        # Value labels
+        offset = max(1.0, float(topc["net_pnl"].abs().max())) * 0.02
+        for bar, net_pnl in zip(bars, topc["net_pnl"].fillna(0.0).to_numpy()):
+            sign = 1 if net_pnl >= 0 else -1
+            ax1.text(
+                bar.get_width() + sign * offset,
+                bar.get_y() + bar.get_height() / 2,
+                f"${net_pnl:,.0f}",
+                va="center",
+                ha="left" if sign > 0 else "right",
+            )
+
+        ax1.text(
+            0.02,
+            0.98,
+            "Highlighted = Highest Net PnL",
+            transform=ax1.transAxes,
+            ha="left",
+            va="top",
+            fontsize=10,
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="#ffe6c7", alpha=0.6),
+        )
+
+    # 2) Avg return by symbol (with total PnL labels)
     ax2 = fig.add_subplot(gs[0, 2:])
     if symbol_summary.empty:
         ax2.axis("off")
         ax2.text(0.5, 0.5, "No symbol data", ha="center", va="center")
     else:
-        s = symbol_summary.sort_values("avg_return", ascending=False)
-        ax2.bar(range(len(s)), s["avg_return"])
+        # Sort by avg return for plotting, but highlight the symbol with highest total PnL
+        s = symbol_summary.sort_values("avg_return", ascending=False).reset_index(
+            drop=True
+        )
+        best_total_pnl_row = symbol_summary.sort_values(
+            "net_pnl", ascending=False
+        ).iloc[0]
+        best_total_pnl_symbol = best_total_pnl_row["symbol"]
+
+        colors = [
+            "darkorange" if sym == best_total_pnl_symbol else "steelblue"
+            for sym in s["symbol"]
+        ]
+        bars = ax2.bar(range(len(s)), s["avg_return"], color=colors, alpha=0.85)
         ax2.set_xticks(range(len(s)))
         ax2.set_xticklabels(s["symbol"], rotation=45, ha="right")
         ax2.set_title("Average Return by Symbol (today)")
         ax2.set_ylabel("Avg Return (%)")
         ax2.axhline(0, color="black", linewidth=1)
+
+        # Put total PnL labels above/below each bar
+        return_offset = max(1.0, float(s["avg_return"].abs().max())) * 0.02
+        for bar, net_pnl in zip(bars, s["net_pnl"].fillna(0.0).to_numpy()):
+            height = bar.get_height()
+            sign = 1 if height >= 0 else -1
+            ax2.text(
+                bar.get_x() + bar.get_width() / 2,
+                height + sign * return_offset,
+                f"${net_pnl:,.0f}",
+                ha="center",
+                va="bottom" if sign > 0 else "top",
+                fontsize=9,
+            )
+
+        ax2.text(
+            0.02,
+            0.95,
+            "Highlighted = Highest Total PnL",
+            transform=ax2.transAxes,
+            ha="left",
+            va="top",
+            fontsize=10,
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="#ffe6c7", alpha=0.6),
+        )
 
     # 3) Win-rate distribution (by symbol+combo)
     ax3 = fig.add_subplot(gs[1, :2])
@@ -626,7 +706,7 @@ def build_comprehensive_report(all_df: pd.DataFrame, report_dir: Path) -> None:
             triggered.groupby(["symbol", "opening_range", "tp_multiplier", "risk_pct"])[
                 "outcome"
             ]
-            .apply(lambda s: (s == "TP").sum() / len(s))
+            .apply(lambda s_: (s_ == "TP").sum() / len(s_))
             .reset_index(name="win_rate")
         )
         ax3.hist(wr["win_rate"] * 100, bins=10, edgecolor="black")
@@ -640,39 +720,68 @@ def build_comprehensive_report(all_df: pd.DataFrame, report_dir: Path) -> None:
         ax4.axis("off")
         ax4.text(0.5, 0.5, "No symbol data", ha="center", va="center")
     else:
-        s = symbol_summary.sort_values("trades", ascending=False)
-        ax4.bar(range(len(s)), s["trades"])
-        ax4.set_xticks(range(len(s)))
-        ax4.set_xticklabels(s["symbol"], rotation=45, ha="right")
+        s_counts = symbol_summary.sort_values("trades", ascending=False).reset_index(
+            drop=True
+        )
+        ax4.bar(range(len(s_counts)), s_counts["trades"])
+        ax4.set_xticks(range(len(s_counts)))
+        ax4.set_xticklabels(s_counts["symbol"], rotation=45, ha="right")
         ax4.set_title("Triggered Trade Counts (today)")
         ax4.set_ylabel("Count")
 
     # 5) Text summary
     ax5 = fig.add_subplot(gs[2, :])
     ax5.axis("off")
+
     total_trades = int(triggered.shape[0])
-    total_symbols = triggered["symbol"].nunique()
-    best_combo = combo_summary.iloc[0]["label"] if not combo_summary.empty else "N/A"
-    best_symbol = (
-        symbol_summary.iloc[0]["symbol"] if not symbol_summary.empty else "N/A"
-    )
-    best_symbol_ret = (
-        f"{symbol_summary.iloc[0]['avg_return']:.2f}%"
-        if not symbol_summary.empty
-        else "N/A"
-    )
+    total_symbols = int(triggered["symbol"].nunique())
+
+    # Best combo (by net PnL)
+    if combo_summary.empty:
+        best_combo_label = "N/A"
+    else:
+        best_combo_label = combo_summary.sort_values("net_pnl", ascending=False).iloc[
+            0
+        ]["label"]
+
+    # Top symbols (by total PnL and by avg return)
+    if symbol_summary.empty:
+        top_total_pnl_symbol = "N/A"
+        top_total_pnl_value = 0.0
+        top_avg_return_symbol = "N/A"
+        top_avg_return_value = "N/A"
+    else:
+        top_total_row = symbol_summary.sort_values("net_pnl", ascending=False).iloc[0]
+        top_total_pnl_symbol = top_total_row["symbol"]
+        top_total_pnl_value = (
+            float(top_total_row["net_pnl"])
+            if pd.notna(top_total_row["net_pnl"])
+            else 0.0
+        )
+
+        top_avg_row = symbol_summary.sort_values("avg_return", ascending=False).iloc[0]
+        top_avg_return_symbol = top_avg_row["symbol"]
+        top_avg_return_value = (
+            f"{float(top_avg_row['avg_return']):.2f}%"
+            if pd.notna(top_avg_row["avg_return"])
+            else "N/A"
+        )
+
     summary_text = (
         "TODAY SUMMARY\n"
         "=============\n"
         f"Symbols traded: {total_symbols}\n"
         f"Triggered trades: {total_trades}\n"
-        f"Best combo: {best_combo}\n"
-        f"Top symbol (avg return): {best_symbol} ({best_symbol_ret})\n"
+        f"Best combo: {best_combo_label}\n"
+        f"Top symbol (total PnL): {top_total_pnl_symbol} (${top_total_pnl_value:,.2f})\n"
+        f"Top symbol (avg return): {top_avg_return_symbol} ({top_avg_return_value})\n"
     )
     ax5.text(0.02, 0.95, summary_text, va="top", fontfamily="monospace")
 
     fig.suptitle("Daily ORB – Comprehensive Overview", fontsize=16, fontweight="bold")
-    fig.tight_layout()
+    # Make room for the suptitle
+    fig.tight_layout(rect=[0, 0, 1, 0.97])
+
     safe_savefig(
         fig, report_dir / "comprehensive_overview.png", dpi=150, bbox_inches="tight"
     )

@@ -47,10 +47,25 @@ symbols:
     - symbol: "NQ=F"           # E-mini Nasdaq
       name: "Nasdaq Futures"
       multiplier: 20
+    - symbol: "MES=F"          # Micro E-mini S&P 500
+      name: "Micro S&P"
+      multiplier: 5
+    - symbol: "ES=F"           # E-mini S&P 500
+      name: "S&P Futures"
+      multiplier: 50
 
   forex:
     - symbol: "EURUSD=X"
       name: "EUR/USD"
+      pip_value: 0.0001
+    - symbol: "GBPUSD=X"
+      name: "GBP/USD"
+      pip_value: 0.0001
+    - symbol: "USDJPY=X"
+      name: "USD/JPY"
+      pip_value: 0.01
+    - symbol: "AUDUSD=X"
+      name: "AUD/USD"
       pip_value: 0.0001
 
   commodities:
@@ -60,6 +75,12 @@ symbols:
     - symbol: "GLD"            # Gold ETF (alternative)
       name: "Gold ETF"
       multiplier: 1
+    - symbol: "SI=F"           # Silver Futures
+      name: "Silver"
+      multiplier: 5000
+    - symbol: "CL=F"           # Crude Oil Futures
+      name: "Crude Oil"
+      multiplier: 1000
 
   stocks:
     - symbol: "AAPL"
@@ -76,6 +97,24 @@ symbols:
       name: "S&P 500 ETF"
     - symbol: "QQQ"
       name: "Nasdaq ETF"
+    - symbol: "META"
+      name: "Meta Platforms"
+    - symbol: "NVDA"
+      name: "NVIDIA"
+    - symbol: "AMD"
+      name: "Advanced Micro Devices"
+    - symbol: "JPM"
+      name: "JPMorgan Chase"
+    - symbol: "UNH"
+      name: "UnitedHealth"
+    - symbol: "BA"
+      name: "Boeing"
+    - symbol: "XOM"
+      name: "Exxon Mobil"
+    - symbol: "HD"
+      name: "Home Depot"
+    - symbol: "NFLX"
+      name: "Netflix"
 
 # Data Configuration
 # If start_date or end_date are null/blank, the downloader will
