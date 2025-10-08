@@ -137,7 +137,7 @@ class DataDownloader:
         pbar.close()
 
         print("\n" + "=" * 50)
-        print(f"Download Summary:")
+        print("Download Summary:")
         print(f"Successful: {successful}/{total_downloads}")
         if failed:
             print(f"Failed downloads: {', '.join(failed)}")

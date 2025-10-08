@@ -703,12 +703,6 @@ def _plot_best_trade_detail(all_df: pd.DataFrame, report_dir: Path) -> None:
     plt.close(fig)
 
 
-from pathlib import Path
-import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib.gridspec import GridSpec
-
-
 def build_comprehensive_report(all_df: pd.DataFrame, report_dir: Path) -> None:
     """Create a multi-panel overview (today-only) + a top-symbol detail chart."""
     # Work only with rows that actually triggered trades
