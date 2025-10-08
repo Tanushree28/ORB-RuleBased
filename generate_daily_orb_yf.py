@@ -579,6 +579,130 @@ def _plot_top_symbol_detail(all_df: pd.DataFrame, report_dir: Path) -> None:
     plt.close(fig)
 
 
+def _plot_best_trade_detail(all_df: pd.DataFrame, report_dir: Path) -> None:
+    """Generate a dedicated image for the day's best single trade."""
+
+    triggered = all_df[all_df["triggered"]].copy()
+    if triggered.empty or triggered["pnl"].isna().all():
+        return
+
+    best_idx = triggered["pnl"].idxmax()
+    if pd.isna(best_idx):
+        return
+
+    best_row = triggered.loc[best_idx]
+    if isinstance(best_row, pd.DataFrame):
+        best_row = best_row.iloc[0]
+
+    best_symbol = str(best_row["symbol"])
+    best_direction = str(best_row["direction"]).upper()
+    best_pnl = float(best_row["pnl"])
+    best_date = pd.to_datetime(best_row["date"]).strftime("%Y-%m-%d")
+
+    sym_dir_df = triggered[
+        (triggered["symbol"] == best_symbol)
+        & (triggered["direction"].str.upper() == best_direction)
+    ].copy()
+
+    if sym_dir_df.empty:
+        return
+
+    sym_dir_df["_orig_idx"] = sym_dir_df.index
+    sym_dir_df = sym_dir_df.sort_values(
+        ["date", "opening_range", "tp_multiplier", "risk_pct"]
+    ).reset_index(drop=True)
+    sym_dir_df["cum_pnl"] = sym_dir_df["pnl"].cumsum()
+
+    best_pos = sym_dir_df.index[sym_dir_df["_orig_idx"] == best_idx][0]
+    outcomes = sym_dir_df["outcome"].value_counts().sort_index()
+
+    fig = plt.figure(figsize=(14, 6))
+    gs = GridSpec(2, 2, figure=fig, width_ratios=[2.2, 1.3])
+
+    ax1 = fig.add_subplot(gs[:, 0])
+    x_vals = np.arange(len(sym_dir_df))
+    ax1.plot(x_vals, sym_dir_df["cum_pnl"], marker="o", color="steelblue")
+    ax1.scatter(
+        [best_pos],
+        [sym_dir_df.loc[best_pos, "cum_pnl"]],
+        color="darkorange",
+        s=120,
+        zorder=5,
+        label="Best trade",
+    )
+    ax1.set_title(f"{best_symbol} {best_direction} – Cumulative PnL (today)")
+    ax1.set_xlabel("Trade # (symbol + direction)")
+    ax1.set_ylabel("Cumulative PnL")
+    ax1.axhline(0, linewidth=1, color="black")
+    ax1.legend(loc="best")
+
+    for idx, pnl in enumerate(sym_dir_df["pnl"]):
+        ax1.annotate(
+            f"${pnl:,.0f}",
+            (x_vals[idx], sym_dir_df.loc[idx, "cum_pnl"]),
+            textcoords="offset points",
+            xytext=(0, 8 if pnl >= 0 else -12),
+            ha="center",
+            fontsize=8,
+        )
+
+    ax2 = fig.add_subplot(gs[0, 1])
+    if outcomes.empty:
+        ax2.axis("off")
+        ax2.text(0.5, 0.5, "No trades", ha="center", va="center")
+    else:
+        ax2.bar(outcomes.index.astype(str), outcomes.values, color="#4c72b0")
+        ax2.set_title("Outcome Breakdown")
+        ax2.set_xlabel("Outcome")
+        ax2.set_ylabel("Count")
+
+    ax3 = fig.add_subplot(gs[1, 1])
+    trade_labels = [
+        f"#{idx + 1} {row['outcome']}\nTP {row['tp_multiplier']} | Risk {int(row['risk_pct'] * 100)}%"
+        for idx, (_, row) in enumerate(sym_dir_df.iterrows())
+    ]
+    bar_colors = [
+        "darkorange" if idx == best_pos else "steelblue"
+        for idx in range(len(sym_dir_df))
+    ]
+    ax3.bar(range(len(sym_dir_df)), sym_dir_df["pnl"], color=bar_colors)
+    ax3.set_xticks(range(len(sym_dir_df)))
+    ax3.set_xticklabels(trade_labels, fontsize=8)
+    ax3.axhline(0, color="black", linewidth=1)
+    ax3.set_ylabel("PnL")
+    ax3.set_title("Trade PnL (symbol + direction)")
+
+    info_lines = [
+        "BEST TRADE DETAILS",
+        "===================",
+        f"Symbol: {best_symbol}",
+        f"Direction: {best_direction}",
+        f"Date: {best_date}",
+        f"Outcome: {best_row['outcome']}",
+        f"PnL: ${best_pnl:,.2f}",
+        f"Return: {float(best_row['return_pct']):.2f}%",
+        f"Opening range: {best_row['opening_range']}",
+        f"TP multiplier: {float(best_row['tp_multiplier']):.2f}x",
+        f"Risk percent: {float(best_row['risk_pct']) * 100:.1f}%",
+        f"ORB High: {float(best_row['orb_high']):.4f}",
+        f"ORB Low: {float(best_row['orb_low']):.4f}",
+        f"ORB Range: {float(best_row['orb_range']):.4f}",
+        "",
+        f"Trades in view: {len(sym_dir_df)}",
+        f"Best trade position: #{best_pos + 1}",
+    ]
+
+    fig.text(0.72, 0.15, "\n".join(info_lines), va="bottom", fontfamily="monospace")
+    fig.suptitle("Daily ORB – Best Trade Spotlight", fontsize=16, fontweight="bold")
+    fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+
+    out_path = report_dir / (
+        f"best_trade_report_{safe_symbol(best_symbol)}_{best_direction.lower()}.png"
+    )
+    safe_savefig(fig, out_path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+
 from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -817,6 +941,7 @@ def build_comprehensive_report(all_df: pd.DataFrame, report_dir: Path) -> None:
 
     # Top-symbol detail
     _plot_top_symbol_detail(all_df, report_dir)
+    _plot_best_trade_detail(all_df, report_dir)
 
 
 def build_futures_focus_report(
