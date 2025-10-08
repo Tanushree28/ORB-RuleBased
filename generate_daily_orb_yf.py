@@ -767,6 +767,32 @@ def build_comprehensive_report(all_df: pd.DataFrame, report_dir: Path) -> None:
             else "N/A"
         )
 
+    best_trade_line = "Best trade (single-trade PnL): N/A"
+    worst_trade_line = "Worst trade (single-trade PnL): N/A"
+    if not triggered.empty:
+        best_idx = triggered["pnl"].idxmax()
+        worst_idx = triggered["pnl"].idxmin()
+
+        if pd.notna(best_idx):
+            best_row = triggered.loc[best_idx]
+            if isinstance(best_row, pd.DataFrame):
+                best_row = best_row.iloc[0]
+            best_trade_line = (
+                "Best trade (single-trade PnL): "
+                f"{best_row['symbol']} ({best_row['direction'].upper()}) "
+                f"${best_row['pnl']:,.2f}"
+            )
+
+        if pd.notna(worst_idx):
+            worst_row = triggered.loc[worst_idx]
+            if isinstance(worst_row, pd.DataFrame):
+                worst_row = worst_row.iloc[0]
+            worst_trade_line = (
+                "Worst trade (single-trade PnL): "
+                f"{worst_row['symbol']} ({worst_row['direction'].upper()}) "
+                f"${worst_row['pnl']:,.2f}"
+            )
+
     summary_text = (
         "TODAY SUMMARY\n"
         "=============\n"
@@ -775,6 +801,8 @@ def build_comprehensive_report(all_df: pd.DataFrame, report_dir: Path) -> None:
         f"Best combo: {best_combo_label}\n"
         f"Top symbol (total PnL): {top_total_pnl_symbol} (${top_total_pnl_value:,.2f})\n"
         f"Top symbol (avg return): {top_avg_return_symbol} ({top_avg_return_value})\n"
+        f"{best_trade_line}\n"
+        f"{worst_trade_line}\n"
     )
     ax5.text(0.02, 0.95, summary_text, va="top", fontfamily="monospace")
 
@@ -952,6 +980,10 @@ def print_and_save_performance_report(all_df: pd.DataFrame, report_dir: Path) ->
         sym_stats["symbol"].map(symbol_to_cat).fillna("Uncategorised")
     )
 
+    # Keep the symbols ordered by total net PnL so the text report lines up with the
+    # visual summary (the chart highlights the same "top symbol" logic).
+    sym_stats = sym_stats.sort_values("net_pnl", ascending=False).reset_index(drop=True)
+
     # Best & worst trade across all triggered
     best_idx = triggered["pnl"].idxmax()
     worst_idx = triggered["pnl"].idxmin()
@@ -1021,6 +1053,15 @@ def print_and_save_performance_report(all_df: pd.DataFrame, report_dir: Path) ->
         "--------------------------------------------------------------------------------"
     )
     lines.append(sym_table)
+    if not sym_stats.empty:
+        top_symbol_row = sym_stats.iloc[0]
+        lines.append(
+            f"\nTop symbol by total PnL (matches chart highlight): {top_symbol_row['symbol']} "
+            f"(${top_symbol_row['net_pnl']:,.2f})"
+        )
+        lines.append(
+            "  • Ranked by the cumulative net PnL of all triggered trades for each symbol."
+        )
     lines.append("")
     lines.append(
         "--------------------------------------------------------------------------------"
@@ -1050,12 +1091,18 @@ def print_and_save_performance_report(all_df: pd.DataFrame, report_dir: Path) ->
         lines.append(f"  Type: {best_trade['direction'].upper()}")
         lines.append(f"  PnL: ${best_trade['pnl']:.2f}")
         lines.append(f"  Date: {best_trade['date']}")
+        lines.append(
+            "    • Highest single-trade PnL among all triggered trades for the day."
+        )
     if worst_trade is not None:
         lines.append("\nWorst Trade:")
         lines.append(f"  Symbol: {worst_trade['symbol']}")
         lines.append(f"  Type: {worst_trade['direction'].upper()}")
         lines.append(f"  PnL: ${worst_trade['pnl']:.2f}")
         lines.append(f"  Date: {worst_trade['date']}")
+        lines.append(
+            "    • Lowest single-trade PnL among all triggered trades for the day."
+        )
 
     report_text = "\n".join(lines)
 
