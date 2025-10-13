@@ -616,8 +616,15 @@ def _plot_best_trade_detail(all_df: pd.DataFrame, report_dir: Path) -> None:
     best_pos = sym_dir_df.index[sym_dir_df["_orig_idx"] == best_idx][0]
     outcomes = sym_dir_df["outcome"].value_counts().sort_index()
 
-    fig = plt.figure(figsize=(14, 6))
-    gs = GridSpec(2, 2, figure=fig, width_ratios=[2.2, 1.3])
+    fig = plt.figure(figsize=(16, 6))
+    gs = GridSpec(
+        2,
+        3,
+        figure=fig,
+        width_ratios=[2.4, 1.4, 1.0],
+        wspace=0.35,
+        hspace=0.4,
+    )
 
     ax1 = fig.add_subplot(gs[:, 0])
     x_vals = np.arange(len(sym_dir_df))
@@ -692,7 +699,16 @@ def _plot_best_trade_detail(all_df: pd.DataFrame, report_dir: Path) -> None:
         f"Best trade position: #{best_pos + 1}",
     ]
 
-    fig.text(0.72, 0.15, "\n".join(info_lines), va="bottom", fontfamily="monospace")
+    ax_text = fig.add_subplot(gs[:, 2])
+    ax_text.axis("off")
+    ax_text.text(
+        0,
+        1,
+        "\n".join(info_lines),
+        va="top",
+        ha="left",
+        fontfamily="monospace",
+    )
     fig.suptitle("Daily ORB – Best Trade Spotlight", fontsize=16, fontweight="bold")
     fig.tight_layout(rect=[0, 0.03, 1, 0.95])
 

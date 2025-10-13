@@ -1,0 +1,68 @@
+--------------------------------------------------------------------------------
+Performance by Symbol:
+--------------------------------------------------------------------------------
+  symbol    category  total_trades win_rate    net_pnl avg_win avg_loss profit_factor   max_dd return_pct
+    GC=F commodities            12    83.3%  $1,200.00 $150.00 $-150.00          5.00 $-200.00      12.0%
+     GLD commodities            12    83.3%  $1,200.00 $150.00 $-150.00          5.00 $-200.00      12.0%
+    AAPL      stocks             6   100.0%  $1,050.00 $175.00    $0.00           NaN   $50.00      10.5%
+     AMD      stocks             6   100.0%  $1,050.00 $175.00    $0.00           NaN   $50.00      10.5%
+GBPUSD=X       forex             6   100.0%  $1,050.00 $175.00    $0.00           NaN   $50.00      10.5%
+AUDUSD=X       forex             6   100.0%  $1,050.00 $175.00    $0.00           NaN   $50.00      10.5%
+      BA      stocks             6   100.0%  $1,050.00 $175.00    $0.00           NaN   $50.00      10.5%
+EURUSD=X       forex             6   100.0%  $1,050.00 $175.00    $0.00           NaN   $50.00      10.5%
+    TSLA      stocks             6   100.0%  $1,050.00 $175.00    $0.00           NaN   $50.00      10.5%
+    META      stocks             6   100.0%  $1,050.00 $175.00    $0.00           NaN   $50.00      10.5%
+     JPM      stocks             6    66.7%    $450.00 $112.50    $0.00           NaN    $0.00       4.5%
+     UNH      stocks             6    66.7%    $450.00 $112.50    $0.00           NaN    $0.00       4.5%
+     XOM      stocks             6    66.7%    $450.00 $112.50    $0.00           NaN    $0.00       4.5%
+USDJPY=X       forex            12    50.0%    $150.00 $175.00 $-150.00          1.17 $-200.00       1.5%
+    ES=F     futures            12    50.0%    $150.00 $175.00 $-150.00          1.17 $-200.00       1.5%
+    AMZN      stocks            12    50.0%    $150.00 $175.00 $-150.00          1.17 $-200.00       1.5%
+     SPY      stocks            12    50.0%    $150.00 $175.00 $-150.00          1.17 $-200.00       1.5%
+    NQ=F     futures            12    50.0%    $150.00 $175.00 $-150.00          1.17 $-200.00       1.5%
+   MES=F     futures            12    50.0%    $150.00 $175.00 $-150.00          1.17 $-200.00       1.5%
+   MNQ=F     futures            12    50.0%    $150.00 $175.00 $-150.00          1.17 $-200.00       1.5%
+    MSFT      stocks            12    50.0%    $150.00 $175.00 $-150.00          1.17 $-200.00       1.5%
+     QQQ      stocks            12    50.0%    $150.00 $175.00 $-150.00          1.17 $-200.00       1.5%
+   GOOGL      stocks            12    33.3%   $-450.00 $112.50 $-150.00          0.50 $-200.00      -4.5%
+    NVDA      stocks            12    33.3%   $-750.00 $112.50 $-150.00          0.38 $-200.00      -7.5%
+    NFLX      stocks            12    16.7%   $-750.00  $75.00 $-150.00          0.17 $-200.00      -7.5%
+    SI=F commodities            12    16.7% $-1,350.00  $75.00 $-150.00          0.10 $-200.00     -13.5%
+    CL=F commodities            12     0.0% $-1,800.00   $0.00 $-150.00          0.00 $-200.00     -18.0%
+      HD      stocks            12     0.0% $-1,800.00   $0.00 $-150.00          0.00 $-200.00     -18.0%
+
+Top symbol by total PnL (matches chart highlight): GC=F ($1,200.00)
+  • Ranked by the cumulative net PnL of all triggered trades for each symbol.
+
+--------------------------------------------------------------------------------
+Performance by Category:
+--------------------------------------------------------------------------------
+   category  symbols  total_trades avg_win_rate total_pnl avg_return
+commodities        4            48        45.8%  $-750.00      -1.9%
+      forex        4            30        87.5% $3,300.00       8.2%
+    futures        4            48        50.0%   $600.00       1.5%
+     stocks       16           144        61.5% $3,450.00       2.2%
+
+--------------------------------------------------------------------------------
+Overall Statistics:
+--------------------------------------------------------------------------------
+Total Trades Executed: 270
+Total Winning Trades: 146
+Total Losing Trades: 112
+Overall Win Rate: 54.1%
+Total PnL: $6,600.00
+Average Trade PnL: $24.44
+
+Best Trade:
+  Symbol: MNQ=F
+  Type: SHORT
+  PnL: $400.00
+  Date: 2025-10-10 00:00:00
+    • Highest single-trade PnL among all triggered trades for the day.
+
+Worst Trade:
+  Symbol: MNQ=F
+  Type: LONG
+  PnL: $-200.00
+  Date: 2025-10-10 00:00:00
+    • Lowest single-trade PnL among all triggered trades for the day.

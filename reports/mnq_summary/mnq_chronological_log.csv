@@ -1,8 +1,11 @@
 Date,Day,Buy Result,Sell Result,First Trade,First Result,Second Trade,Second Result,Daily Result,Cumulative,Double Win,Double Lose,Single Win,Single Lose,Wins,Losses,Trades,Double Win Cum,Double Lose Cum,Single Win Cum,Single Lose Cum
-2025-09-29,Monday,-1.0,0,Buy,-1,Sell,0.0,-1,-1,0,0,0,1,0,1,2,0,0,0,1
-2025-09-30,Tuesday,-1.0,-1,Sell,-1,Buy,-1.0,-2,-3,0,1,0,0,0,2,2,0,1,0,1
-2025-10-01,Wednesday,0.0,-1,Buy,0,Sell,-1.0,-1,-4,0,0,0,1,0,1,2,0,1,0,2
-2025-10-02,Thursday,,0,Sell,0,Buy,,0,-4,0,0,0,0,0,0,1,0,1,0,2
-2025-10-03,Friday,-1.0,2,Buy,-1,Sell,2.0,1,-3,0,0,0,0,1,1,2,0,1,0,2
-2025-10-06,Monday,0.0,-1,Sell,-1,Buy,0.0,-1,-4,0,0,0,1,0,1,2,0,1,0,3
-2025-10-07,Tuesday,-1.0,2,Buy,-1,Sell,2.0,1,-3,0,0,0,0,1,1,2,0,1,0,3
+2025-09-29,Monday,-1.0,0.0,Buy,-1.0,Sell,0.0,-1,-1,0,0,0,1,0,1,2,0,0,0,1
+2025-09-30,Tuesday,-1.0,-1.0,Sell,-1.0,Buy,-1.0,-2,-3,0,1,0,0,0,2,2,0,1,0,1
+2025-10-01,Wednesday,0.0,-1.0,Buy,0.0,Sell,-1.0,-1,-4,0,0,0,1,0,1,2,0,1,0,2
+2025-10-02,Thursday,,0.0,Sell,0.0,Buy,,0,-4,0,0,0,0,0,0,1,0,1,0,2
+2025-10-03,Friday,-1.0,2.0,Buy,-1.0,Sell,2.0,1,-3,0,0,0,0,1,1,2,0,1,0,2
+2025-10-06,Monday,0.0,-1.0,Sell,-1.0,Buy,0.0,-1,-4,0,0,0,1,0,1,2,0,1,0,3
+2025-10-07,Tuesday,-1.0,2.0,Buy,-1.0,Sell,2.0,1,-3,0,0,0,0,1,1,2,0,1,0,3
+2025-10-08,Wednesday,2.0,,Sell,,Buy,2.0,2,-1,0,0,1,0,1,0,1,0,1,1,3
+2025-10-09,Thursday,,0.0,Buy,,Sell,0.0,0,-1,0,0,0,0,0,0,1,0,1,1,3
+2025-10-10,Friday,-1.0,2.0,Sell,2.0,Buy,-1.0,1,0,0,0,0,0,1,1,2,0,1,1,3

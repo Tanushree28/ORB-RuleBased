@@ -1,0 +1,4 @@
+group,net_pnl,avg_return,win_rate,trades
+MNQ=F,150.0,0.125,0.5,12
+NQ=F,150.0,0.125,0.5,12
+Others (aggregate),6300.0,0.5144230769230769,0.6217948717948717,246

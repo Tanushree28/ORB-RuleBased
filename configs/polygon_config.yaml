@@ -2,7 +2,7 @@
 
 polygon:
   # Get your free API key from: https://polygon.io/dashboard/api-keys
-  api_key: "ptjs8fgo8OP67szn6kjeIdPL5JtAQMq2"
+  api_key: "DYoJg_TtYAAwVRFStWs1NZZUmhsqR6ub"
   
   # Rate limiting for free tier (5 requests per minute)
   rate_limit:
