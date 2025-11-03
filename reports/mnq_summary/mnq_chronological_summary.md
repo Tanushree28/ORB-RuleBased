@@ -1,12 +1,12 @@
 # MNQ Chronological 2:1 Performance Summary
 
-**Coverage:** 2025-09-29 → 2025-10-10
+**Coverage:** 2025-09-29 → 2025-10-13
 
 ## Key Metrics
 
-- Total trades: **17**
+- Total trades: **18**
 - Wins / Losses: **4 / 8**
-- Win rate: **23.5%**
+- Win rate: **22.2%**
 - Net result: **+0R**
 - Max drawdown: **3R**
 - Double wins: **0**  ·  Double losses: **1**
