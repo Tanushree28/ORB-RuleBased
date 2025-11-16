@@ -1,0 +1,66 @@
+
+====== AAPL ORB Summary ======
+Period: 2023-11-07 → 2025-11-06
+Total Trades: 501
+Win Rate: 39.32%
+Average PnL (R): -0.09
+Cumulative PnL (R): -45.49
+No-Trade Days: 19
+==================================
+
+====== TSLA ORB Summary ======
+Period: 2023-11-07 → 2025-11-06
+Total Trades: 501
+Win Rate: 44.71%
+Average PnL (R): 0.03
+Cumulative PnL (R): 17.36
+No-Trade Days: 13
+==================================
+
+====== AMZN ORB Summary ======
+Period: 2023-11-07 → 2025-11-06
+Total Trades: 501
+Win Rate: 42.51%
+Average PnL (R): -0.04
+Cumulative PnL (R): -19.58
+No-Trade Days: 12
+==================================
+
+====== GOOGL ORB Summary ======
+Period: 2023-11-07 → 2025-11-06
+Total Trades: 501
+Win Rate: 41.32%
+Average PnL (R): -0.01
+Cumulative PnL (R): -4.11
+No-Trade Days: 23
+==================================
+
+====== MSFT ORB Summary ======
+Period: 2023-11-07 → 2025-11-06
+Total Trades: 501
+Win Rate: 38.92%
+Average PnL (R): -0.06
+Cumulative PnL (R): -28.10
+No-Trade Days: 12
+==================================
+
+====== META ORB Summary ======
+Period: 2023-11-07 → 2025-11-06
+Total Trades: 501
+Win Rate: 42.51%
+Average PnL (R): -0.01
+Cumulative PnL (R): -5.46
+No-Trade Days: 21
+==================================
+
+NQ=F
+Error: {"message":"invalid symbol: NQ=F"}
+
+
+MNQ=F
+Error: {"message":"invalid symbol: MNQ=F"}
+
+
+GC=F
+Error: {"message":"invalid symbol: GC=F"}
+

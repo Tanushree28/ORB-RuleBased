@@ -1,0 +1,18 @@
+
+====== MNQ DAILY ORB Summary ======
+Period: 2024-09-23 → 2025-11-06
+Total Trades: 193
+Win Rate: 55.96%
+Average PnL (R): 0.33
+Cumulative PnL (R): 63.41
+No-Trade Days: 25
+========================================
+
+====== NQ DAILY ORB Summary ======
+Period: 2023-11-08 → 2025-11-06
+Total Trades: 143
+Win Rate: 58.74%
+Average PnL (R): 0.26
+Cumulative PnL (R): 37.40
+No-Trade Days: 12
+========================================
