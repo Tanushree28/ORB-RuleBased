@@ -11,5 +11,5 @@ pytz>=2023.3
 tqdm>=4.65.0
 ibapi>=9.81.0
 ib_insync>=0.9.70
-alpaca-py>=1.0.0  # official SDK as of 2024
+alpaca-py<=1.0.0  # official SDK as of 2024
 openpyxl>=3.1.0
